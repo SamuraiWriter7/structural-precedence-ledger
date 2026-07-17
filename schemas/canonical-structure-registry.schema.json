@@ -1,0 +1,333 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/structural-precedence-ledger/schemas/canonical-structure-registry.schema.json",
+  "title": "Canonical Structure Registry",
+  "description": "A machine-readable registry of canonical structural ideas and their stable origin bindings.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "registry_id",
+    "title",
+    "status",
+    "maintained_by",
+    "generated_at",
+    "entries",
+    "audit"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.2.0"
+    },
+    "registry_id": {
+      "type": "string",
+      "pattern": "^REG-[A-Z0-9][A-Z0-9._-]{2,63}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 20
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "frozen",
+        "retired"
+      ]
+    },
+    "maintained_by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maintainer_id",
+        "display_name"
+      ],
+      "properties": {
+        "maintainer_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contact_uri": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "registry_uri": {
+      "type": "string",
+      "format": "uri"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/registryEntry"
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "integrity_status",
+        "review_status",
+        "last_validated_at"
+      ],
+      "properties": {
+        "integrity_status": {
+          "type": "string",
+          "enum": [
+            "unverified",
+            "verified",
+            "disputed"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "self-recorded",
+            "peer-reviewed",
+            "third-party-audited"
+          ]
+        },
+        "last_validated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reviewers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "default": []
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "localizedAlias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "language"
+      ],
+      "properties": {
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2}(?:-[A-Z]{2})?$"
+        }
+      }
+    },
+    "registryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_structure_id",
+        "slug",
+        "canonical_name",
+        "summary",
+        "origin_binding",
+        "classification",
+        "discovery",
+        "lifecycle"
+      ],
+      "properties": {
+        "canonical_structure_id": {
+          "type": "string",
+          "pattern": "^STR-[0-9]{4}-[0-9]{4}$"
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "minLength": 3,
+          "maxLength": 96
+        },
+        "canonical_name": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "en"
+          ],
+          "properties": {
+            "en": {
+              "type": "string",
+              "minLength": 1
+            },
+            "ja": {
+              "type": "string",
+              "minLength": 1
+            },
+            "aliases": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/localizedAlias"
+              },
+              "default": []
+            }
+          }
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 20
+        },
+        "origin_binding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "originator_id",
+            "precedence_record_id",
+            "precedence_record_uri"
+          ],
+          "properties": {
+            "originator_id": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+            },
+            "precedence_record_id": {
+              "type": "string",
+              "pattern": "^SPL-[0-9]{4,}$"
+            },
+            "precedence_record_uri": {
+              "type": "string",
+              "format": "uri"
+            },
+            "first_publication_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "classification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "structure_type",
+            "domains"
+          ],
+          "properties": {
+            "structure_type": {
+              "type": "string",
+              "enum": [
+                "protocol",
+                "architecture",
+                "governance-model",
+                "economic-model",
+                "philosophical-framework",
+                "registry",
+                "audit-model",
+                "other"
+              ]
+            },
+            "domains": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "discovery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "keywords"
+          ],
+          "properties": {
+            "keywords": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "related_structures": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^STR-[0-9]{4}-[0-9]{4}$"
+              },
+              "uniqueItems": true,
+              "default": []
+            }
+          }
+        },
+        "lifecycle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "introduced_at"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "active",
+                "deprecated",
+                "superseded",
+                "withdrawn"
+              ]
+            },
+            "introduced_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "supersedes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^STR-[0-9]{4}-[0-9]{4}$"
+              },
+              "uniqueItems": true,
+              "default": []
+            },
+            "superseded_by": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^STR-[0-9]{4}-[0-9]{4}$"
+              },
+              "uniqueItems": true,
+              "default": []
+            },
+            "note": {
+              "type": "string"
+            }
+          }
+        },
+        "royalty_route_id": {
+          "type": "string",
+          "minLength": 3
+        }
+      }
+    }
+  }
+}
