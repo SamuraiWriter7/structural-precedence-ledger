@@ -1,0 +1,255 @@
+schema_version: "0.5.0"
+
+binding_id: "RCB-2026-0001"
+
+canonical_structure_id: "STR-2026-0001"
+
+binding_scope:
+  scope_type: "canonical-structure"
+
+  description: >-
+    Initial simulated royalty binding for the
+    Structural Precedence Ledger.
+
+origin_binding:
+  originator_id: "shidenkai-alpha"
+
+  precedence_record_id: "SPL-0001"
+
+  royalty_route_id: >-
+    shidenkai-alpha:structural-precedence-ledger
+
+  canonical_uri: >-
+    https://example.org/structural-precedence-ledger
+
+policy:
+  mode: "weighted-contribution"
+
+  gross_value_source: "usage-receipt"
+
+  currency: "JPY"
+
+  reserve_rate: 0.01
+
+  reserve_route_uri: >-
+    https://example.org/funds/structural-maintenance
+
+  origin_minimum_rate: 0.10
+
+  note: >-
+    Accepted contribution weights are normalized
+    before settlement allocation.
+
+participants:
+  - participant_id: "PRT-0001"
+
+    external_id: "shidenkai-alpha"
+
+    display_name: "Shidenkai Alpha"
+
+    role: "originator"
+
+    route_uri: >-
+      https://example.org/routes/shidenkai-alpha
+
+    active: true
+
+  - participant_id: "PRT-0002"
+
+    external_id: "spl-implementation"
+
+    display_name: "SPL Implementation Contributor"
+
+    role: "implementer"
+
+    route_uri: >-
+      https://example.org/routes/spl-implementation
+
+    active: true
+
+  - participant_id: "PRT-0003"
+
+    external_id: "spl-maintenance"
+
+    display_name: "SPL Maintenance Contributor"
+
+    role: "maintainer"
+
+    route_uri: >-
+      https://example.org/routes/spl-maintenance
+
+    active: true
+
+contribution_claims:
+  - claim_id: "CLM-0001"
+
+    participant_id: "PRT-0001"
+
+    contribution_type: "origin"
+
+    description: >-
+      Created the core proposition, origin model,
+      and value-return purpose of the
+      Structural Precedence Ledger.
+
+    weight: 0.60
+
+    status: "accepted"
+
+    assessed_at: "2026-07-18T06:51:05+09:00"
+
+    evidence:
+      - evidence_id: "REV-001"
+
+        type: "git-commit"
+
+        uri: >-
+          https://example.org/structural-precedence-ledger/commit/origin
+
+        recorded_at: "2026-07-18T05:46:47+09:00"
+
+  - claim_id: "CLM-0002"
+
+    participant_id: "PRT-0002"
+
+    contribution_type: "implementation"
+
+    description: >-
+      Implemented machine-readable schemas,
+      examples, and validation scripts for
+      the structural ledger.
+
+    weight: 0.25
+
+    status: "accepted"
+
+    assessed_at: "2026-07-18T06:51:05+09:00"
+
+    evidence:
+      - evidence_id: "REV-002"
+
+        type: "git-commit"
+
+        uri: >-
+          https://example.org/structural-precedence-ledger/commit/implementation
+
+        recorded_at: "2026-07-18T06:07:26+09:00"
+
+  - claim_id: "CLM-0003"
+
+    participant_id: "PRT-0003"
+
+    contribution_type: "maintenance"
+
+    description: >-
+      Maintains registry consistency,
+      documentation, examples, and
+      validation workflows.
+
+    weight: 0.15
+
+    status: "accepted"
+
+    assessed_at: "2026-07-18T06:51:05+09:00"
+
+    evidence:
+      - evidence_id: "REV-003"
+
+        type: "git-commit"
+
+        uri: >-
+          https://example.org/structural-precedence-ledger/commit/maintenance
+
+        recorded_at: "2026-07-18T06:36:50+09:00"
+
+usage_receipts:
+  - receipt_id: "URC-0001"
+
+    recorded_at: "2026-07-18T06:51:05+09:00"
+
+    usage_type: "commercial-use"
+
+    consumer_id: "example-licensee"
+
+    source_uri: >-
+      https://example.org/licenses/SPL-0001
+
+    quantity: 1
+
+    unit: "license"
+
+    gross_value: 1000
+
+    currency: "JPY"
+
+    related_claim_ids:
+      - "CLM-0001"
+      - "CLM-0002"
+      - "CLM-0003"
+
+    evidence:
+      - evidence_id: "REV-004"
+
+        type: "invoice"
+
+        uri: >-
+          https://example.org/invoices/URC-0001
+
+        recorded_at: "2026-07-18T06:51:05+09:00"
+
+settlement:
+  status: "simulated"
+
+  settlement_id: "STL-2026-0001"
+
+  calculated_at: "2026-07-18T06:51:05+09:00"
+
+  currency: "JPY"
+
+  gross_amount: 1000
+
+  reserve_amount: 10
+
+  distributable_amount: 990
+
+  allocations:
+    - participant_id: "PRT-0001"
+      share: 0.60
+      amount: 594
+
+      route_uri: >-
+        https://example.org/routes/shidenkai-alpha
+
+    - participant_id: "PRT-0002"
+      share: 0.25
+      amount: 247.5
+
+      route_uri: >-
+        https://example.org/routes/spl-implementation
+
+    - participant_id: "PRT-0003"
+      share: 0.15
+      amount: 148.5
+
+      route_uri: >-
+        https://example.org/routes/spl-maintenance
+
+  evidence: []
+
+  note: >-
+    Simulation only. No payment was executed.
+
+audit:
+  created_at: "2026-07-18T06:51:05+09:00"
+
+  updated_at: "2026-07-18T06:51:05+09:00"
+
+  integrity_status: "unverified"
+
+  review_status: "self-recorded"
+
+  reviewers: []
+
+  note: >-
+    Replace all example.org URIs with durable
+    production addresses before real use.
