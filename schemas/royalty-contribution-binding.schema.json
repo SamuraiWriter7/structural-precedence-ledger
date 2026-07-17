@@ -1,0 +1,559 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/structural-precedence-ledger/schemas/royalty-contribution-binding.schema.json",
+  "title": "Royalty and Contribution Binding",
+  "description": "A machine-readable binding that connects structural origin, contribution evidence, usage receipts, allocation policy, and value-return routes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "binding_id",
+    "canonical_structure_id",
+    "binding_scope",
+    "origin_binding",
+    "policy",
+    "participants",
+    "contribution_claims",
+    "usage_receipts",
+    "settlement",
+    "audit"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.5.0"
+    },
+    "binding_id": {
+      "type": "string",
+      "pattern": "^RCB-[0-9]{4}-[0-9]{4}$"
+    },
+    "canonical_structure_id": {
+      "type": "string",
+      "pattern": "^STR-[0-9]{4}-[0-9]{4}$"
+    },
+    "binding_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope_type",
+        "description"
+      ],
+      "properties": {
+        "scope_type": {
+          "type": "string",
+          "enum": [
+            "canonical-structure",
+            "derivative",
+            "implementation",
+            "usage-period",
+            "custom"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 20
+        },
+        "from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "to": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "origin_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "originator_id",
+        "precedence_record_id",
+        "royalty_route_id"
+      ],
+      "properties": {
+        "originator_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+        },
+        "precedence_record_id": {
+          "type": "string",
+          "pattern": "^SPL-[0-9]{4,}$"
+        },
+        "royalty_route_id": {
+          "type": "string",
+          "minLength": 3
+        },
+        "canonical_uri": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "policy": {
+      "$ref": "#/$defs/policy"
+    },
+    "participants": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/participant"
+      }
+    },
+    "contribution_claims": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/claim"
+      }
+    },
+    "usage_receipts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/usageReceipt"
+      },
+      "default": []
+    },
+    "settlement": {
+      "$ref": "#/$defs/settlement"
+    },
+    "audit": {
+      "$ref": "#/$defs/audit"
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "type",
+        "uri",
+        "recorded_at"
+      ],
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "pattern": "^REV-[0-9]{3,}$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "git-commit",
+            "release",
+            "publication",
+            "archive-snapshot",
+            "book",
+            "signed-record",
+            "usage-log",
+            "invoice",
+            "contract",
+            "audit-report",
+            "other"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "gross_value_source",
+        "reserve_rate",
+        "origin_minimum_rate"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "attribution-only",
+            "voluntary-contribution",
+            "fixed-share",
+            "weighted-contribution",
+            "hybrid",
+            "custom"
+          ]
+        },
+        "gross_value_source": {
+          "type": "string",
+          "enum": [
+            "none",
+            "usage-receipt",
+            "license-contract",
+            "voluntary-payment",
+            "custom"
+          ]
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "reserve_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "reserve_route_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "origin_minimum_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "participant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "participant_id",
+        "display_name",
+        "role",
+        "active"
+      ],
+      "properties": {
+        "participant_id": {
+          "type": "string",
+          "pattern": "^PRT-[0-9]{4}$"
+        },
+        "external_id": {
+          "type": "string",
+          "minLength": 3
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "originator",
+            "derivative-author",
+            "implementer",
+            "auditor",
+            "maintainer",
+            "distributor",
+            "funder",
+            "other"
+          ]
+        },
+        "route_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "participant_id",
+        "contribution_type",
+        "description",
+        "weight",
+        "status",
+        "assessed_at",
+        "evidence"
+      ],
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "pattern": "^CLM-[0-9]{4}$"
+        },
+        "participant_id": {
+          "type": "string",
+          "pattern": "^PRT-[0-9]{4}$"
+        },
+        "contribution_type": {
+          "type": "string",
+          "enum": [
+            "origin",
+            "derivation",
+            "implementation",
+            "validation",
+            "maintenance",
+            "distribution",
+            "funding",
+            "other"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 20
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "proposed",
+            "accepted",
+            "rejected",
+            "disputed"
+          ]
+        },
+        "assessed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "usageReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_id",
+        "recorded_at",
+        "usage_type",
+        "consumer_id",
+        "source_uri",
+        "quantity",
+        "unit",
+        "related_claim_ids",
+        "evidence"
+      ],
+      "properties": {
+        "receipt_id": {
+          "type": "string",
+          "pattern": "^URC-[0-9]{4}$"
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "usage_type": {
+          "type": "string",
+          "enum": [
+            "reference",
+            "derivation",
+            "implementation",
+            "commercial-use",
+            "noncommercial-use",
+            "training-use",
+            "other"
+          ]
+        },
+        "consumer_id": {
+          "type": "string",
+          "minLength": 3
+        },
+        "source_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "quantity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gross_value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "related_claim_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^CLM-[0-9]{4}$"
+          },
+          "uniqueItems": true
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          },
+          "default": []
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "allocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "participant_id",
+        "share",
+        "amount"
+      ],
+      "properties": {
+        "participant_id": {
+          "type": "string",
+          "pattern": "^PRT-[0-9]{4}$"
+        },
+        "share": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "route_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "settlement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "allocations",
+        "evidence"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "simulated",
+            "approved",
+            "executed",
+            "disputed",
+            "cancelled"
+          ]
+        },
+        "settlement_id": {
+          "type": "string",
+          "pattern": "^STL-[0-9]{4}-[0-9]{4}$"
+        },
+        "calculated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "gross_amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "reserve_amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "distributable_amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "allocations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/allocation"
+          },
+          "default": []
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          },
+          "default": []
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "created_at",
+        "updated_at",
+        "integrity_status",
+        "review_status"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "integrity_status": {
+          "type": "string",
+          "enum": [
+            "unverified",
+            "verified",
+            "disputed"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "self-recorded",
+            "peer-reviewed",
+            "third-party-audited"
+          ]
+        },
+        "reviewers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "default": []
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
