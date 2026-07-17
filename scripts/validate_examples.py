@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
-"""Validate v0.3 structure lineage graphs."""
+"""Validate Structural Precedence Ledger records and registry.
+
+Validation layers:
+
+1. Structural Precedence Record JSON Schema validation.
+2. Canonical Structure Registry JSON Schema validation.
+3. Cross-entry semantic validation for the registry.
+"""
 
 from __future__ import annotations
 
 import json
 import sys
+import unicodedata
 from collections import Counter
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -16,11 +23,19 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[1]
 
-SCHEMA_PATH = (
+PRECEDENCE_SCHEMA_PATH = (
     ROOT
     / "schemas"
-    / "structure-lineage-graph.schema.json"
+    / "structural-precedence-record.schema.json"
 )
+
+REGISTRY_SCHEMA_PATH = (
+    ROOT
+    / "schemas"
+    / "canonical-structure-registry.schema.json"
+)
+
+EXAMPLES_DIR = ROOT / "examples"
 
 REGISTRY_PATH = (
     ROOT
@@ -28,83 +43,44 @@ REGISTRY_PATH = (
     / "canonical-structures.yaml"
 )
 
-GRAPHS_DIR = ROOT / "graphs"
+
+def load_json(path: Path) -> dict[str, Any]:
+    """Load and return a JSON object."""
+
+    with path.open("r", encoding="utf-8") as file:
+        document = json.load(file)
+
+    if not isinstance(document, dict):
+        raise ValueError(
+            f"JSON root must be an object: {path}"
+        )
+
+    return document
 
 
-LINEAGE_TYPES = {
-    "derived_from",
-    "extends",
-    "specializes",
-    "generalizes",
-    "implements",
-    "integrates",
-    "translates",
-    "supersedes",
-}
+def load_yaml(path: Path) -> Any:
+    """Load and return a YAML document."""
 
-
-SYMMETRIC_TYPES = {
-    "independent_convergence",
-    "partial_convergence",
-    "conceptual_analogy",
-    "related_to",
-}
-
-
-def load_json(
-    path: Path,
-) -> dict[str, Any]:
-    """Load a JSON document."""
-
-    with path.open(
-        "r",
-        encoding="utf-8",
-    ) as file:
-        return json.load(file)
-
-
-def load_yaml(
-    path: Path,
-) -> Any:
-    """Load a YAML document."""
-
-    with path.open(
-        "r",
-        encoding="utf-8",
-    ) as file:
+    with path.open("r", encoding="utf-8") as file:
         return yaml.safe_load(file)
 
 
-def parse_time(
-    value: str,
-) -> datetime:
-    """Parse an ISO 8601 datetime."""
+def find_yaml_files(directory: Path) -> list[Path]:
+    """Return sorted YAML files from one directory."""
 
-    return datetime.fromisoformat(
-        value.replace(
-            "Z",
-            "+00:00",
-        )
+    if not directory.exists():
+        return []
+
+    return sorted(
+        {
+            *directory.glob("*.yaml"),
+            *directory.glob("*.yml"),
+        }
     )
 
 
-def duplicates(
-    values: list[Any],
-) -> set[Any]:
-    """Return values appearing more than once."""
-
-    return {
-        value
-        for value, count
-        in Counter(values).items()
-        if count > 1
-    }
-
-
-def schema_error_path(
-    error: Any,
-) -> str:
-    """Format a JSON Schema error path."""
+def format_schema_error_path(error: Any) -> str:
+    """Format a JSON Schema error path using dot notation."""
 
     if not error.absolute_path:
         return "<root>"
@@ -115,618 +91,618 @@ def schema_error_path(
     )
 
 
-def find_cycle(
-    adjacency: dict[str, set[str]],
-) -> list[str] | None:
-    """Return one directed lineage cycle."""
-
-    visiting: set[str] = set()
-    visited: set[str] = set()
-    stack: list[str] = []
-
-    def visit(
-        node: str,
-    ) -> list[str] | None:
-        if node in visiting:
-            start = stack.index(node)
-
-            return (
-                stack[start:]
-                + [node]
-            )
-
-        if node in visited:
-            return None
-
-        visiting.add(node)
-        stack.append(node)
-
-        for target in sorted(
-            adjacency.get(
-                node,
-                set(),
-            )
-        ):
-            cycle = visit(target)
-
-            if cycle:
-                return cycle
-
-        stack.pop()
-        visiting.remove(node)
-        visited.add(node)
-
-        return None
-
-    for node in sorted(adjacency):
-        cycle = visit(node)
-
-        if cycle:
-            return cycle
-
-    return None
-
-
-def semantic_errors(
-    graph: dict[str, Any],
-    registry: dict[
-        str,
-        dict[str, Any],
-    ],
-) -> list[str]:
-    """Apply cross-file graph rules."""
-
-    errors: list[str] = []
-
-    nodes = graph["nodes"]
-    edges = graph["edges"]
-
-    node_ids = [
-        node["node_id"]
-        for node in nodes
-    ]
-
-    edge_ids = [
-        edge["edge_id"]
-        for edge in edges
-    ]
-
-    canonical_ids = [
-        node["canonical_structure_id"]
-        for node in nodes
-        if (
-            node["node_kind"]
-            == "canonical_structure"
-        )
-    ]
-
-    external_ids = [
-        node["external_structure_id"]
-        for node in nodes
-        if (
-            node["node_kind"]
-            == "external_structure"
-        )
-    ]
-
-    evidence_ids = [
-        evidence["evidence_id"]
-        for edge in edges
-        for evidence
-        in edge["evidence"]
-    ]
-
-    for label, values in (
-        (
-            "node_id",
-            node_ids,
-        ),
-        (
-            "edge_id",
-            edge_ids,
-        ),
-        (
-            "canonical_structure_id",
-            canonical_ids,
-        ),
-        (
-            "external_structure_id",
-            external_ids,
-        ),
-        (
-            "evidence_id",
-            evidence_ids,
-        ),
-    ):
-        for duplicate in sorted(
-            duplicates(values)
-        ):
-            errors.append(
-                f"duplicate {label}: "
-                f"{duplicate}"
-            )
-
-    if node_ids != sorted(node_ids):
-        errors.append(
-            "node IDs must be sorted"
-        )
-
-    if edge_ids != sorted(edge_ids):
-        errors.append(
-            "edge IDs must be sorted"
-        )
-
-    node_by_id = {
-        node["node_id"]: node
-        for node in nodes
-    }
-
-    for node in nodes:
-        if (
-            node["node_kind"]
-            != "canonical_structure"
-        ):
-            continue
-
-        node_id = node["node_id"]
-
-        structure_id = (
-            node[
-                "canonical_structure_id"
-            ]
-        )
-
-        entry = registry.get(
-            structure_id
-        )
-
-        if entry is None:
-            errors.append(
-                f"{node_id}: "
-                "unknown canonical structure "
-                f"{structure_id}"
-            )
-
-            continue
-
-        expected_name = (
-            entry[
-                "canonical_name"
-            ]["en"]
-        )
-
-        expected_time = (
-            entry[
-                "origin_binding"
-            ][
-                "first_publication_at"
-            ]
-        )
-
-        if node["name"] != expected_name:
-            errors.append(
-                f"{node_id}: "
-                "name does not match registry"
-            )
-
-        if (
-            parse_time(
-                node[
-                    "first_publication_at"
-                ]
-            )
-            != parse_time(
-                expected_time
-            )
-        ):
-            errors.append(
-                f"{node_id}: "
-                "publication time does not "
-                "match registry"
-            )
-
-    directed_keys: list[
-        tuple[str, str, str]
-    ] = []
-
-    symmetric_keys: set[
-        tuple[
-            str,
-            tuple[str, str],
-        ]
-    ] = set()
-
-    adjacency = {
-        node_id: set()
-        for node_id in node_ids
-    }
-
-    for edge in edges:
-        edge_id = edge["edge_id"]
-
-        source_id = (
-            edge["source_node_id"]
-        )
-
-        target_id = (
-            edge["target_node_id"]
-        )
-
-        relation = (
-            edge["relationship_type"]
-        )
-
-        if source_id not in node_by_id:
-            errors.append(
-                f"{edge_id}: "
-                "unknown source node "
-                f"{source_id}"
-            )
-
-            continue
-
-        if target_id not in node_by_id:
-            errors.append(
-                f"{edge_id}: "
-                "unknown target node "
-                f"{target_id}"
-            )
-
-            continue
-
-        if source_id == target_id:
-            errors.append(
-                f"{edge_id}: "
-                "self-edge is not allowed"
-            )
-
-            continue
-
-        directed_keys.append(
-            (
-                source_id,
-                relation,
-                target_id,
-            )
-        )
-
-        if relation in SYMMETRIC_TYPES:
-            symmetric_key = (
-                relation,
-                tuple(
-                    sorted(
-                        (
-                            source_id,
-                            target_id,
-                        )
-                    )
-                ),
-            )
-
-            if (
-                symmetric_key
-                in symmetric_keys
-            ):
-                errors.append(
-                    f"{edge_id}: "
-                    "duplicate symmetric "
-                    "relation"
-                )
-            else:
-                symmetric_keys.add(
-                    symmetric_key
-                )
-
-        if relation in LINEAGE_TYPES:
-            adjacency[
-                source_id
-            ].add(
-                target_id
-            )
-
-            source_time = parse_time(
-                node_by_id[
-                    source_id
-                ][
-                    "first_publication_at"
-                ]
-            )
-
-            target_time = parse_time(
-                node_by_id[
-                    target_id
-                ][
-                    "first_publication_at"
-                ]
-            )
-
-            if source_time < target_time:
-                errors.append(
-                    f"{edge_id}: "
-                    "source predates target "
-                    f"for {relation}"
-                )
-
-        assertion_time = parse_time(
-            edge["asserted_at"]
-        )
-
-        for node_id in (
-            source_id,
-            target_id,
-        ):
-            publication_time = (
-                parse_time(
-                    node_by_id[
-                        node_id
-                    ][
-                        "first_publication_at"
-                    ]
-                )
-            )
-
-            if (
-                assertion_time
-                < publication_time
-            ):
-                errors.append(
-                    f"{edge_id}: "
-                    "assertion predates "
-                    f"{node_id}"
-                )
-
-        audit = (
-            edge["influence_audit"]
-        )
-
-        access = (
-            audit[
-                "evidence_of_access"
-            ]
-        )
-
-        citation = (
-            audit[
-                "evidence_of_citation"
-            ]
-        )
-
-        direct = (
-            audit[
-                "evidence_of_direct_influence"
-            ]
-        )
-
-        if (
-            relation
-            == "direct_influence"
-            and direct
-            != "documented"
-        ):
-            errors.append(
-                f"{edge_id}: "
-                "direct_influence requires "
-                "documented direct evidence"
-            )
-
-        if (
-            relation
-            == "probable_influence"
-        ):
-            if access not in {
-                "indirect",
-                "documented",
-            }:
-                errors.append(
-                    f"{edge_id}: "
-                    "probable_influence "
-                    "requires access evidence"
-                )
-
-            if direct == "documented":
-                errors.append(
-                    f"{edge_id}: "
-                    "documented direct evidence "
-                    "must use direct_influence"
-                )
-
-        if (
-            relation
-            == "independent_convergence"
-        ):
-            if direct in {
-                "indirect",
-                "documented",
-            }:
-                errors.append(
-                    f"{edge_id}: "
-                    "direct evidence conflicts "
-                    "with independent_convergence"
-                )
-
-            if citation == "documented":
-                errors.append(
-                    f"{edge_id}: "
-                    "documented citation conflicts "
-                    "with independent_convergence"
-                )
-
-    for duplicate in sorted(
-        duplicates(
-            directed_keys
-        )
-    ):
-        errors.append(
-            "duplicate directed edge: "
-            f"{duplicate[0]} "
-            f"{duplicate[1]} "
-            f"{duplicate[2]}"
-        )
-
-    cycle = find_cycle(
-        adjacency
+def normalize_label(value: str) -> str:
+    """Normalize structure names and aliases for comparison.
+
+    Unicode compatibility normalization, case folding, and removal
+    of punctuation and whitespace are applied.
+
+    Examples treated as equivalent:
+
+    - "Canonical Registry"
+    - "canonical-registry"
+    - "Ｃａｎｏｎｉｃａｌ Ｒｅｇｉｓｔｒｙ"
+    """
+
+    normalized = unicodedata.normalize(
+        "NFKC",
+        value,
+    ).casefold()
+
+    return "".join(
+        character
+        for character in normalized
+        if character.isalnum()
     )
 
-    if cycle:
-        errors.append(
-            "lineage cycle detected: "
-            + " -> ".join(cycle)
-        )
 
-    return errors
+def duplicate_values(
+    values: list[Any],
+) -> set[Any]:
+    """Return values appearing more than once."""
+
+    return {
+        value
+        for value, count in Counter(values).items()
+        if count > 1
+    }
 
 
-def validate_graph(
-    path: Path,
-    schema: dict[str, Any],
-    registry: dict[
-        str,
-        dict[str, Any],
-    ],
-) -> bool:
-    """Validate one graph document."""
+def validate_schema_document(
+    document_path: Path,
+    schema_path: Path,
+) -> tuple[bool, Any | None]:
+    """Validate one YAML document against a JSON Schema."""
 
     print(
         "\n[validate] "
-        f"{path.relative_to(ROOT)}"
+        f"{document_path.relative_to(ROOT)}"
     )
 
     try:
-        graph = load_yaml(path)
+        schema = load_json(schema_path)
+        document = load_yaml(document_path)
 
     except (
         OSError,
+        json.JSONDecodeError,
         yaml.YAMLError,
+        ValueError,
     ) as error:
-        print(
-            f"[parse-error] {error}"
-        )
+        print(f"[parse-error] {error}")
+        return False, None
 
-        return False
+    if not isinstance(document, dict):
+        print(
+            "[parse-error] "
+            "YAML root must be a mapping."
+        )
+        return False, None
 
     validator = Draft202012Validator(
         schema,
         format_checker=FormatChecker(),
     )
 
-    schema_errors = sorted(
-        validator.iter_errors(
-            graph
-        ),
-        key=lambda item: list(
-            item.path
-        ),
-    )
-
-    if schema_errors:
-        for error in schema_errors:
-            print(
-                "[schema-error] "
-                f"{schema_error_path(error)}: "
-                f"{error.message}"
-            )
-
-        return False
-
-    print("[schema-ok]")
-
-    errors = semantic_errors(
-        graph,
-        registry,
+    errors = sorted(
+        validator.iter_errors(document),
+        key=lambda item: list(item.absolute_path),
     )
 
     if errors:
         for error in errors:
             print(
-                f"[semantic-error] "
-                f"{error}"
+                "[schema-error] "
+                f"{format_schema_error_path(error)}: "
+                f"{error.message}"
+            )
+
+        return False, document
+
+    print("[schema-ok]")
+    return True, document
+
+
+def validate_unique_registry_values(
+    entries: list[dict[str, Any]],
+    errors: list[str],
+) -> None:
+    """Validate IDs, slugs, and origin bindings for uniqueness."""
+
+    structure_ids = [
+        entry["canonical_structure_id"]
+        for entry in entries
+    ]
+
+    slugs = [
+        entry["slug"]
+        for entry in entries
+    ]
+
+    origin_bindings = [
+        (
+            entry["origin_binding"]["originator_id"],
+            entry["origin_binding"]["precedence_record_id"],
+        )
+        for entry in entries
+    ]
+
+    for duplicate in sorted(
+        duplicate_values(structure_ids)
+    ):
+        errors.append(
+            "duplicate canonical_structure_id: "
+            f"{duplicate}"
+        )
+
+    for duplicate in sorted(
+        duplicate_values(slugs)
+    ):
+        errors.append(
+            f"duplicate slug: {duplicate}"
+        )
+
+    for originator_id, record_id in sorted(
+        duplicate_values(origin_bindings)
+    ):
+        errors.append(
+            "duplicate origin binding: "
+            f"{originator_id} + {record_id}"
+        )
+
+    if structure_ids != sorted(structure_ids):
+        errors.append(
+            "canonical_structure_id values "
+            "must be sorted in ascending order"
+        )
+
+
+def validate_registry_labels(
+    entries: list[dict[str, Any]],
+    errors: list[str],
+) -> None:
+    """Detect canonical-name and alias collisions."""
+
+    global_label_owner: dict[str, str] = {}
+
+    for entry in entries:
+        structure_id = entry["canonical_structure_id"]
+        canonical_name = entry["canonical_name"]
+
+        labels: list[tuple[str, str]] = []
+
+        english_name = canonical_name.get("en")
+
+        if isinstance(english_name, str):
+            labels.append(
+                ("canonical_name.en", english_name)
+            )
+
+        japanese_name = canonical_name.get("ja")
+
+        if isinstance(japanese_name, str):
+            labels.append(
+                ("canonical_name.ja", japanese_name)
+            )
+
+        aliases = canonical_name.get(
+            "aliases",
+            [],
+        )
+
+        for alias_index, alias in enumerate(aliases):
+            if not isinstance(alias, dict):
+                continue
+
+            alias_value = alias.get("value")
+
+            if isinstance(alias_value, str):
+                labels.append(
+                    (
+                        f"aliases.{alias_index}",
+                        alias_value,
+                    )
+                )
+
+        local_labels: dict[str, str] = {}
+
+        for label_path, label_value in labels:
+            normalized = normalize_label(
+                label_value
+            )
+
+            if not normalized:
+                errors.append(
+                    f"{structure_id}: "
+                    f"{label_path} becomes empty "
+                    "after normalization"
+                )
+                continue
+
+            previous_local = local_labels.get(
+                normalized
+            )
+
+            if previous_local is not None:
+                errors.append(
+                    f"{structure_id}: "
+                    f"label {label_value!r} duplicates "
+                    f"local label {previous_local!r}"
+                )
+                continue
+
+            local_labels[normalized] = label_value
+
+            previous_owner = global_label_owner.get(
+                normalized
+            )
+
+            if (
+                previous_owner is not None
+                and previous_owner != structure_id
+            ):
+                errors.append(
+                    f"{structure_id}: "
+                    f"label {label_value!r} collides "
+                    f"with structure {previous_owner}"
+                )
+            else:
+                global_label_owner[normalized] = (
+                    structure_id
+                )
+
+
+def validate_registry_references(
+    entries: list[dict[str, Any]],
+    errors: list[str],
+) -> None:
+    """Validate related and supersession references."""
+
+    entry_by_id = {
+        entry["canonical_structure_id"]: entry
+        for entry in entries
+    }
+
+    known_ids = set(entry_by_id)
+
+    for entry in entries:
+        structure_id = entry[
+            "canonical_structure_id"
+        ]
+
+        discovery = entry.get(
+            "discovery",
+            {},
+        )
+
+        related_structures = discovery.get(
+            "related_structures",
+            [],
+        )
+
+        for related_id in related_structures:
+            if related_id == structure_id:
+                errors.append(
+                    f"{structure_id}: "
+                    "related_structures must not "
+                    "contain itself"
+                )
+
+            elif related_id not in known_ids:
+                errors.append(
+                    f"{structure_id}: unknown "
+                    "related structure "
+                    f"{related_id}"
+                )
+
+        lifecycle = entry.get(
+            "lifecycle",
+            {},
+        )
+
+        status = lifecycle.get("status")
+
+        supersedes = lifecycle.get(
+            "supersedes",
+            [],
+        )
+
+        superseded_by = lifecycle.get(
+            "superseded_by",
+            [],
+        )
+
+        if (
+            status == "superseded"
+            and not superseded_by
+        ):
+            errors.append(
+                f"{structure_id}: "
+                "superseded status requires "
+                "at least one superseded_by entry"
+            )
+
+        if (
+            status != "superseded"
+            and superseded_by
+        ):
+            errors.append(
+                f"{structure_id}: "
+                "superseded_by is present, but "
+                f"lifecycle status is {status!r}"
+            )
+
+        for target_id in supersedes:
+            if target_id == structure_id:
+                errors.append(
+                    f"{structure_id}: "
+                    "supersedes must not "
+                    "reference itself"
+                )
+                continue
+
+            if target_id not in known_ids:
+                errors.append(
+                    f"{structure_id}: unknown "
+                    "supersedes target "
+                    f"{target_id}"
+                )
+                continue
+
+            target_lifecycle = (
+                entry_by_id[target_id]
+                .get("lifecycle", {})
+            )
+
+            reverse_links = (
+                target_lifecycle
+                .get("superseded_by", [])
+            )
+
+            if structure_id not in reverse_links:
+                errors.append(
+                    f"{structure_id}: "
+                    f"{target_id} does not contain "
+                    f"{structure_id} in superseded_by"
+                )
+
+        for target_id in superseded_by:
+            if target_id == structure_id:
+                errors.append(
+                    f"{structure_id}: "
+                    "superseded_by must not "
+                    "reference itself"
+                )
+                continue
+
+            if target_id not in known_ids:
+                errors.append(
+                    f"{structure_id}: unknown "
+                    "superseded_by target "
+                    f"{target_id}"
+                )
+                continue
+
+            target_lifecycle = (
+                entry_by_id[target_id]
+                .get("lifecycle", {})
+            )
+
+            reverse_links = (
+                target_lifecycle
+                .get("supersedes", [])
+            )
+
+            if structure_id not in reverse_links:
+                errors.append(
+                    f"{structure_id}: "
+                    f"{target_id} does not contain "
+                    f"{structure_id} in supersedes"
+                )
+
+
+def validate_related_structure_symmetry(
+    entries: list[dict[str, Any]],
+    errors: list[str],
+) -> None:
+    """Require related-structure references to be reciprocal.
+
+    This rule keeps the canonical registry internally navigable.
+
+    If A lists B as related, B must also list A as related.
+    """
+
+    entry_by_id = {
+        entry["canonical_structure_id"]: entry
+        for entry in entries
+    }
+
+    for structure_id, entry in entry_by_id.items():
+        related_structures = (
+            entry
+            .get("discovery", {})
+            .get("related_structures", [])
+        )
+
+        for related_id in related_structures:
+            related_entry = entry_by_id.get(
+                related_id
+            )
+
+            if related_entry is None:
+                continue
+
+            reverse_related = (
+                related_entry
+                .get("discovery", {})
+                .get("related_structures", [])
+            )
+
+            if structure_id not in reverse_related:
+                errors.append(
+                    f"{structure_id}: related structure "
+                    f"{related_id} does not contain "
+                    f"reciprocal reference {structure_id}"
+                )
+
+
+def registry_semantic_errors(
+    registry_document: dict[str, Any],
+) -> list[str]:
+    """Return registry semantic validation errors."""
+
+    errors: list[str] = []
+
+    entries_value = registry_document.get(
+        "entries"
+    )
+
+    if not isinstance(entries_value, list):
+        return [
+            "registry entries must be an array"
+        ]
+
+    entries: list[dict[str, Any]] = []
+
+    for index, entry in enumerate(entries_value):
+        if not isinstance(entry, dict):
+            errors.append(
+                f"entries.{index}: "
+                "registry entry must be an object"
+            )
+            continue
+
+        entries.append(entry)
+
+    if errors:
+        return errors
+
+    validate_unique_registry_values(
+        entries,
+        errors,
+    )
+
+    validate_registry_labels(
+        entries,
+        errors,
+    )
+
+    validate_registry_references(
+        entries,
+        errors,
+    )
+
+    validate_related_structure_symmetry(
+        entries,
+        errors,
+    )
+
+    return errors
+
+
+def validate_precedence_records() -> bool:
+    """Validate all v0.1 precedence record examples."""
+
+    print(
+        "\n[target] structural-precedence-record"
+    )
+
+    print(
+        "schema : "
+        f"{PRECEDENCE_SCHEMA_PATH.relative_to(ROOT)}"
+    )
+
+    if not PRECEDENCE_SCHEMA_PATH.exists():
+        print(
+            "[fatal] Missing schema: "
+            f"{PRECEDENCE_SCHEMA_PATH.relative_to(ROOT)}"
+        )
+        return False
+
+    example_paths = find_yaml_files(
+        EXAMPLES_DIR
+    )
+
+    if not example_paths:
+        print(
+            "[fatal] No YAML examples found in: "
+            f"{EXAMPLES_DIR.relative_to(ROOT)}"
+        )
+        return False
+
+    valid = True
+
+    for example_path in example_paths:
+        schema_valid, _ = validate_schema_document(
+            example_path,
+            PRECEDENCE_SCHEMA_PATH,
+        )
+
+        if not schema_valid:
+            valid = False
+            continue
+
+        print("[semantic-ok]")
+
+    return valid
+
+
+def validate_canonical_registry() -> bool:
+    """Validate the v0.2 canonical registry."""
+
+    print(
+        "\n[target] canonical-structure-registry"
+    )
+
+    print(
+        "schema : "
+        f"{REGISTRY_SCHEMA_PATH.relative_to(ROOT)}"
+    )
+
+    if not REGISTRY_SCHEMA_PATH.exists():
+        print(
+            "[fatal] Missing schema: "
+            f"{REGISTRY_SCHEMA_PATH.relative_to(ROOT)}"
+        )
+        return False
+
+    if not REGISTRY_PATH.exists():
+        print(
+            "[fatal] Missing registry: "
+            f"{REGISTRY_PATH.relative_to(ROOT)}"
+        )
+        return False
+
+    schema_valid, registry_document = (
+        validate_schema_document(
+            REGISTRY_PATH,
+            REGISTRY_SCHEMA_PATH,
+        )
+    )
+
+    if not schema_valid:
+        return False
+
+    if not isinstance(registry_document, dict):
+        return False
+
+    semantic_errors = registry_semantic_errors(
+        registry_document
+    )
+
+    if semantic_errors:
+        for error in semantic_errors:
+            print(
+                f"[semantic-error] {error}"
             )
 
         return False
 
     print("[semantic-ok]")
-
     return True
 
 
 def main() -> int:
-    """Validate all lineage graphs."""
+    """Validate precedence records and the canonical registry."""
 
     print(
-        "=== Structure Lineage "
-        "Graph Validation ==="
+        "=== Structural Precedence Ledger Validation ==="
     )
 
-    for required_path in (
-        SCHEMA_PATH,
-        REGISTRY_PATH,
-    ):
-        if not required_path.exists():
-            print(
-                "[fatal] Missing file: "
-                f"{required_path}"
-            )
+    precedence_valid = validate_precedence_records()
+    registry_valid = validate_canonical_registry()
 
-            return 2
-
-    graph_paths = sorted(
-        set(
-            GRAPHS_DIR.glob(
-                "*.yaml"
-            )
-        )
-        | set(
-            GRAPHS_DIR.glob(
-                "*.yml"
-            )
-        )
-    )
-
-    if not graph_paths:
-        print(
-            "[fatal] "
-            "No graph YAML files found."
-        )
-
-        return 2
-
-    schema = load_json(
-        SCHEMA_PATH
-    )
-
-    registry_document = load_yaml(
-        REGISTRY_PATH
-    )
-
-    registry = {
-        entry[
-            "canonical_structure_id"
-        ]: entry
-        for entry
-        in registry_document["entries"]
-    }
-
-    failed = False
-
-    for graph_path in graph_paths:
-        if not validate_graph(
-            graph_path,
-            schema,
-            registry,
-        ):
-            failed = True
-
-    if failed:
-        print(
-            "\nValidation failed."
-        )
-
+    if not precedence_valid or not registry_valid:
+        print("\nValidation failed.")
         return 1
 
+    validated_example_count = len(
+        find_yaml_files(EXAMPLES_DIR)
+    )
+
     print(
-        "\nAll lineage graphs "
-        "are valid. "
-        f"Validated: {len(graph_paths)}"
+        "\nAll documents are valid. "
+        f"Validated: {validated_example_count + 1}"
     )
 
     return 0
