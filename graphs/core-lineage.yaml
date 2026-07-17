@@ -5,9 +5,9 @@ graph_id: "GRF-2026-0001"
 title: "Structural Precedence Ledger Core Lineage"
 
 description: >-
-  The initial lineage graph connecting the ledger,
-  canonical registry, and graph layers of the
-  Structural Precedence Ledger.
+  The canonical lineage graph connecting the origin record,
+  registry, structural relationship, and prediction audit layers
+  of the Structural Precedence Ledger.
 
 status: "active"
 
@@ -16,42 +16,69 @@ maintained_by:
   display_name: "Shidenkai Alpha"
   contact_uri: "https://example.org/shidenkai-alpha"
 
-generated_at: "2026-07-18T06:07:26+09:00"
+generated_at: "2026-07-18T06:49:43+09:00"
 
 registry_uri: >-
   https://example.org/structural-precedence-ledger/registry/canonical-structures.yaml
 
 nodes:
   - node_id: "NOD-0001"
+
     node_kind: "canonical_structure"
+
     canonical_structure_id: "STR-2026-0001"
+
     name: "Structural Precedence Ledger"
+
     first_publication_at: "2026-07-18T05:46:47+09:00"
-    source_uri: "https://example.org/structural-precedence-ledger"
+
+    source_uri: >-
+      https://example.org/structural-precedence-ledger
 
     keywords:
       - "origin"
       - "precedence"
+      - "trace"
       - "audit"
+      - "attribution"
+
+    note: >-
+      The foundational layer for recording structural origins,
+      precedence evidence, convergence, influence boundaries,
+      and future royalty routes.
 
   - node_id: "NOD-0002"
+
     node_kind: "canonical_structure"
+
     canonical_structure_id: "STR-2026-0002"
+
     name: "Canonical Structure Registry"
+
     first_publication_at: "2026-07-18T05:57:24+09:00"
 
     source_uri: >-
       https://example.org/structural-precedence-ledger/docs/v0.2
 
     keywords:
+      - "canonical-id"
       - "registry"
       - "identity"
       - "alias"
+      - "lifecycle"
+
+    note: >-
+      Assigns stable canonical identities to structural ideas
+      and binds them to precedence records.
 
   - node_id: "NOD-0003"
+
     node_kind: "canonical_structure"
+
     canonical_structure_id: "STR-2026-0003"
+
     name: "Structure Lineage Graph"
+
     first_publication_at: "2026-07-18T06:07:26+09:00"
 
     source_uri: >-
@@ -59,23 +86,75 @@ nodes:
 
     keywords:
       - "lineage"
-      - "graph"
       - "derivation"
+      - "extension"
+      - "convergence"
+      - "influence-audit"
+      - "graph"
+
+    note: >-
+      Connects canonical and external structures through
+      auditable derivation, implementation, translation,
+      convergence, influence, and supersession relationships.
+
+  - node_id: "NOD-0004"
+
+    node_kind: "canonical_structure"
+
+    canonical_structure_id: "STR-2026-0004"
+
+    name: "Prediction and Outcome Audit"
+
+    first_publication_at: "2026-07-18T06:36:50+09:00"
+
+    source_uri: >-
+      https://example.org/structural-precedence-ledger/docs/v0.4
+
+    keywords:
+      - "prediction"
+      - "outcome"
+      - "forecast"
+      - "success-criteria"
+      - "failure-criteria"
+      - "audit"
+
+    note: >-
+      Freezes structural predictions before their outcomes
+      and later evaluates observable evidence against
+      explicit success and failure criteria.
 
 edges:
   - edge_id: "EDG-0001"
+
     source_node_id: "NOD-0002"
     target_node_id: "NOD-0001"
+
     relationship_type: "extends"
+
     confidence: "high"
-    asserted_at: "2026-07-18T06:07:26+09:00"
+
+    asserted_at: "2026-07-18T05:57:24+09:00"
+
     asserted_by: "shidenkai-alpha"
 
     convergences:
-      - "Adds stable canonical identity to precedence records."
+      - >-
+        Both layers preserve stable origin and
+        precedence references.
+
+      - >-
+        Both layers bind structural identity to
+        inspectable evidence.
 
     differences:
-      - "The registry manages multiple structures rather than one origin record."
+      - >-
+        The v0.1 ledger records one structural origin,
+        while the v0.2 registry manages multiple
+        canonical structures.
+
+      - >-
+        The registry introduces stable structure IDs,
+        aliases, discovery metadata, and lifecycle states.
 
     evidence: []
 
@@ -85,22 +164,45 @@ edges:
       evidence_of_direct_influence: "documented"
 
       audit_note: >-
-        The v0.2 registry was explicitly designed as
-        an extension of the v0.1 ledger.
+        The Canonical Structure Registry was explicitly
+        designed as an extension of the Structural
+        Precedence Ledger origin-record layer.
+
+    note: >-
+      v0.2 converts individual precedence records into
+      a searchable and stable canonical registry.
 
   - edge_id: "EDG-0002"
+
     source_node_id: "NOD-0003"
     target_node_id: "NOD-0002"
+
     relationship_type: "extends"
+
     confidence: "high"
+
     asserted_at: "2026-07-18T06:07:26+09:00"
+
     asserted_by: "shidenkai-alpha"
 
     convergences:
-      - "Uses canonical registry identities as graph node bindings."
+      - >-
+        The lineage graph uses canonical structure IDs
+        defined by the registry.
+
+      - >-
+        Both layers preserve stable structure identity
+        across later revisions.
 
     differences:
-      - "The graph records relationships, while the registry records identity."
+      - >-
+        The registry records structure identity,
+        while the graph records relationships
+        between structures.
+
+      - >-
+        The graph introduces nodes, edges,
+        relationship types, and cycle detection.
 
     evidence: []
 
@@ -110,22 +212,47 @@ edges:
       evidence_of_direct_influence: "documented"
 
       audit_note: >-
-        The v0.3 graph directly consumes the canonical
-        identifiers introduced in v0.2.
+        The Structure Lineage Graph directly consumes
+        canonical identifiers and origin bindings
+        introduced by the v0.2 registry.
+
+    note: >-
+      v0.3 places registered structures into an
+      auditable relationship graph.
 
   - edge_id: "EDG-0003"
+
     source_node_id: "NOD-0003"
     target_node_id: "NOD-0001"
+
     relationship_type: "integrates"
+
     confidence: "high"
+
     asserted_at: "2026-07-18T06:07:26+09:00"
+
     asserted_by: "shidenkai-alpha"
 
     convergences:
-      - "Carries precedence and influence boundaries into graph relationships."
+      - >-
+        Both layers distinguish structural similarity
+        from demonstrated influence.
+
+      - >-
+        Both layers require explicit convergence
+        and difference descriptions.
+
+      - >-
+        Both layers preserve evidence boundaries.
 
     differences:
-      - "The graph evaluates cross-structure relationships rather than a single structure."
+      - >-
+        The v0.1 ledger evaluates one structure and
+        its later convergence records.
+
+      - >-
+        The v0.3 graph evaluates relationships across
+        multiple canonical and external structures.
 
     evidence: []
 
@@ -135,15 +262,133 @@ edges:
       evidence_of_direct_influence: "documented"
 
       audit_note: >-
-        The lineage graph integrates the precedence
-        and influence audit model defined in v0.1.
+        The Structure Lineage Graph integrates the
+        precedence, convergence, and influence-audit
+        principles established in v0.1.
+
+    note: >-
+      The graph preserves v0.1 evidence boundaries
+      at the relationship-edge level.
+
+  - edge_id: "EDG-0004"
+
+    source_node_id: "NOD-0004"
+    target_node_id: "NOD-0003"
+
+    relationship_type: "extends"
+
+    confidence: "high"
+
+    asserted_at: "2026-07-18T06:36:50+09:00"
+
+    asserted_by: "shidenkai-alpha"
+
+    convergences:
+      - >-
+        Both layers bind claims to registered
+        canonical structures.
+
+      - >-
+        Both layers use explicit evidence and
+        auditable relationships.
+
+      - >-
+        Both layers preserve machine-readable
+        reasoning boundaries.
+
+    differences:
+      - >-
+        The lineage graph records relationships
+        that already exist.
+
+      - >-
+        The prediction audit records forward claims
+        before their outcomes become known.
+
+      - >-
+        The prediction audit adds observation windows,
+        success criteria, failure criteria, and
+        outcome evaluations.
+
+    evidence: []
+
+    influence_audit:
+      evidence_of_access: "documented"
+      evidence_of_citation: "documented"
+      evidence_of_direct_influence: "documented"
+
+      audit_note: >-
+        The Prediction and Outcome Audit directly
+        extends the registered identity, relationship,
+        and evidence model introduced in v0.3.
+
+    note: >-
+      v0.4 extends structural lineage from historical
+      relationships into forward prediction and
+      outcome evaluation.
+
+  - edge_id: "EDG-0005"
+
+    source_node_id: "NOD-0004"
+    target_node_id: "NOD-0001"
+
+    relationship_type: "integrates"
+
+    confidence: "high"
+
+    asserted_at: "2026-07-18T06:36:50+09:00"
+
+    asserted_by: "shidenkai-alpha"
+
+    convergences:
+      - >-
+        Both layers preserve timestamped evidence
+        before later claims are evaluated.
+
+      - >-
+        Both layers separate recorded chronology
+        from claims of direct influence.
+
+      - >-
+        Both layers retain failed, disputed,
+        or inconclusive records.
+
+    differences:
+      - >-
+        The v0.1 ledger records the origin and
+        precedence of structural ideas.
+
+      - >-
+        The v0.4 audit records predictions,
+        outcomes, confidence, and evaluation results.
+
+    evidence: []
+
+    influence_audit:
+      evidence_of_access: "documented"
+      evidence_of_citation: "documented"
+      evidence_of_direct_influence: "documented"
+
+      audit_note: >-
+        The Prediction and Outcome Audit integrates
+        the timestamp, evidence, and audit principles
+        established by the original ledger.
+
+    note: >-
+      The prediction layer applies origin-evidence
+      discipline to forward-looking structural claims.
 
 audit:
   integrity_status: "unverified"
+
   review_status: "self-recorded"
-  last_validated_at: "2026-07-18T06:07:26+09:00"
+
+  last_validated_at: "2026-07-18T06:49:43+09:00"
+
   reviewers: []
 
   note: >-
-    Initial self-recorded lineage graph for the
-    first three specification layers.
+    This graph contains the first four canonical specification
+    layers. Replace all example.org addresses with durable
+    repository, release, archive, or publication URIs before
+    production use.
