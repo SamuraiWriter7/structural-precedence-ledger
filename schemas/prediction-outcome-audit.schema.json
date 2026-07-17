@@ -1,0 +1,441 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/structural-precedence-ledger/schemas/prediction-outcome-audit.schema.json",
+  "title": "Prediction and Outcome Audit",
+  "description": "A machine-readable record that freezes a structural prediction before its outcome and later audits observable evidence against explicit success and failure criteria.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "canonical_structure_id",
+    "prediction",
+    "outcomes",
+    "evaluation",
+    "audit"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.4.0"
+    },
+    "audit_id": {
+      "type": "string",
+      "pattern": "^PAU-[0-9]{4}-[0-9]{4}$"
+    },
+    "canonical_structure_id": {
+      "type": "string",
+      "pattern": "^STR-[0-9]{4}-[0-9]{4}$"
+    },
+    "prediction": {
+      "$ref": "#/$defs/prediction"
+    },
+    "outcomes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/outcome"
+      },
+      "default": []
+    },
+    "evaluation": {
+      "$ref": "#/$defs/evaluation"
+    },
+    "audit": {
+      "$ref": "#/$defs/audit"
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "type",
+        "uri",
+        "recorded_at"
+      ],
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "pattern": "^PEV-[0-9]{3,}$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "git-commit",
+            "release",
+            "publication",
+            "archive-snapshot",
+            "book",
+            "signed-record",
+            "dataset",
+            "other"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "criterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "criterion_id",
+        "description"
+      ],
+      "properties": {
+        "criterion_id": {
+          "type": "string",
+          "pattern": "^(SUC|FLR)-[0-9]{3,}$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10
+        }
+      }
+    },
+    "prediction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prediction_id",
+        "issued_at",
+        "issued_by",
+        "status",
+        "claim",
+        "rationale",
+        "scope",
+        "expected_window",
+        "observable_indicators",
+        "success_criteria",
+        "failure_criteria",
+        "confidence",
+        "precedence_evidence"
+      ],
+      "properties": {
+        "prediction_id": {
+          "type": "string",
+          "pattern": "^PRED-[0-9]{4}-[0-9]{3,}$"
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "issued_by": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "closed",
+            "withdrawn"
+          ]
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 20
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 20
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 10
+        },
+        "expected_window": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "from",
+            "to"
+          ],
+          "properties": {
+            "from": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "to": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "observable_indicators": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 5
+          }
+        },
+        "success_criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/criterion"
+              },
+              {
+                "properties": {
+                  "criterion_id": {
+                    "pattern": "^SUC-[0-9]{3,}$"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "failure_criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/criterion"
+              },
+              {
+                "properties": {
+                  "criterion_id": {
+                    "pattern": "^FLR-[0-9]{3,}$"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "exclusions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 5
+          },
+          "default": []
+        },
+        "confidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "level",
+            "probability"
+          ],
+          "properties": {
+            "level": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "probability": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "note": {
+              "type": "string"
+            }
+          }
+        },
+        "precedence_evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        },
+        "withdrawal_reason": {
+          "type": "string",
+          "minLength": 10
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome_id",
+        "observed_at",
+        "source_uri",
+        "summary",
+        "relevance",
+        "evidence_strength"
+      ],
+      "properties": {
+        "outcome_id": {
+          "type": "string",
+          "pattern": "^OUT-[0-9]{3,}$"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 20
+        },
+        "relevance": {
+          "type": "string",
+          "enum": [
+            "supporting",
+            "contradicting",
+            "mixed",
+            "irrelevant"
+          ]
+        },
+        "evidence_strength": {
+          "type": "string",
+          "enum": [
+            "weak",
+            "moderate",
+            "strong"
+          ]
+        },
+        "matched_indicator_indexes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "default": []
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result",
+        "matched_success_criteria",
+        "matched_failure_criteria",
+        "reasoning",
+        "limitations"
+      ],
+      "properties": {
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evaluator_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "confirmed",
+            "partially_confirmed",
+            "not_confirmed",
+            "inconclusive",
+            "withdrawn"
+          ]
+        },
+        "alignment_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "matched_success_criteria": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^SUC-[0-9]{3,}$"
+          }
+        },
+        "matched_failure_criteria": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^FLR-[0-9]{3,}$"
+          }
+        },
+        "reasoning": {
+          "type": "string",
+          "minLength": 20
+        },
+        "limitations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 5
+          }
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "created_at",
+        "updated_at",
+        "integrity_status",
+        "review_status"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "integrity_status": {
+          "type": "string",
+          "enum": [
+            "unverified",
+            "verified",
+            "disputed"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "self-recorded",
+            "peer-reviewed",
+            "third-party-audited"
+          ]
+        },
+        "reviewers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": []
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
