@@ -1,0 +1,88 @@
+schema_version: "0.2.0"
+
+registry_id: "REG-STRUCTURAL-PRECEDENCE"
+
+title: "Structural Precedence Ledger Canonical Structure Registry"
+
+description: >-
+  The canonical registry for stable structure identifiers,
+  origin bindings, aliases, lifecycle states, and discovery metadata.
+
+status: "active"
+
+maintained_by:
+  maintainer_id: "shidenkai-alpha"
+  display_name: "Shidenkai Alpha"
+  contact_uri: "https://example.org/shidenkai-alpha"
+
+generated_at: "2026-07-18T05:57:24+09:00"
+
+registry_uri: >-
+  https://example.org/structural-precedence-ledger/registry/canonical-structures.yaml
+
+entries:
+  - canonical_structure_id: "STR-2026-0001"
+
+    slug: "structural-precedence-ledger"
+
+    canonical_name:
+      en: "Structural Precedence Ledger"
+      ja: "構造先行性台帳"
+
+      aliases:
+        - value: "Structure Origin Ledger"
+          language: "en"
+
+        - value: "構造の戸籍"
+          language: "ja"
+
+    summary: >-
+      A registry and audit structure for fixing the origin,
+      precedence, convergence, and attribution boundary
+      of structural ideas.
+
+    origin_binding:
+      originator_id: "shidenkai-alpha"
+      precedence_record_id: "SPL-0001"
+
+      precedence_record_uri: >-
+        https://example.org/structural-precedence-ledger/records/SPL-0001.yaml
+
+      first_publication_at: "2026-07-18T05:46:47+09:00"
+
+    classification:
+      structure_type: "registry"
+
+      domains:
+        - "provenance"
+        - "structural-design"
+        - "audit"
+
+    discovery:
+      keywords:
+        - "origin"
+        - "precedence"
+        - "registry"
+        - "convergence"
+        - "audit"
+
+      related_structures: []
+
+    lifecycle:
+      status: "active"
+      introduced_at: "2026-07-18T05:46:47+09:00"
+      supersedes: []
+      superseded_by: []
+
+    royalty_route_id: >-
+      shidenkai-alpha:structural-precedence-ledger
+
+audit:
+  integrity_status: "unverified"
+  review_status: "self-recorded"
+  last_validated_at: "2026-07-18T05:57:24+09:00"
+  reviewers: []
+
+  note: >-
+    Replace example.org URIs with durable production locations
+    before release.
