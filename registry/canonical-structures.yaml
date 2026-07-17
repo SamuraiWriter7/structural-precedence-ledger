@@ -15,7 +15,7 @@ maintained_by:
   display_name: "Shidenkai Alpha"
   contact_uri: "https://example.org/shidenkai-alpha"
 
-generated_at: "2026-07-18T05:57:24+09:00"
+generated_at: "2026-07-18T06:07:26+09:00"
 
 registry_uri: >-
   https://example.org/structural-precedence-ledger/registry/canonical-structures.yaml
@@ -37,8 +37,8 @@ entries:
           language: "ja"
 
     summary: >-
-      A registry and audit structure for fixing the origin,
-      precedence, convergence, and attribution boundary
+      A ledger for fixing the origin, precedence,
+      convergence, and attribution boundary
       of structural ideas.
 
     origin_binding:
@@ -66,7 +66,9 @@ entries:
         - "convergence"
         - "audit"
 
-      related_structures: []
+      related_structures:
+        - "STR-2026-0002"
+        - "STR-2026-0003"
 
     lifecycle:
       status: "active"
@@ -77,12 +79,129 @@ entries:
     royalty_route_id: >-
       shidenkai-alpha:structural-precedence-ledger
 
+  - canonical_structure_id: "STR-2026-0002"
+
+    slug: "canonical-structure-registry"
+
+    canonical_name:
+      en: "Canonical Structure Registry"
+      ja: "正準構造レジストリ"
+
+      aliases:
+        - value: "Canonical Registry"
+          language: "en"
+
+        - value: "構造戸籍レジストリ"
+          language: "ja"
+
+    summary: >-
+      A registry layer that assigns one stable identity
+      to each structural idea and binds it to
+      a precedence record.
+
+    origin_binding:
+      originator_id: "shidenkai-alpha"
+      precedence_record_id: "SPL-0002"
+
+      precedence_record_uri: >-
+        https://example.org/structural-precedence-ledger/records/SPL-0002.yaml
+
+      first_publication_at: "2026-07-18T05:57:24+09:00"
+
+    classification:
+      structure_type: "registry"
+
+      domains:
+        - "identity"
+        - "provenance"
+        - "discovery"
+
+    discovery:
+      keywords:
+        - "canonical-id"
+        - "registry"
+        - "alias"
+        - "lifecycle"
+        - "origin-binding"
+
+      related_structures:
+        - "STR-2026-0001"
+        - "STR-2026-0003"
+
+    lifecycle:
+      status: "active"
+      introduced_at: "2026-07-18T05:57:24+09:00"
+      supersedes: []
+      superseded_by: []
+
+    royalty_route_id: >-
+      shidenkai-alpha:canonical-structure-registry
+
+  - canonical_structure_id: "STR-2026-0003"
+
+    slug: "structure-lineage-graph"
+
+    canonical_name:
+      en: "Structure Lineage Graph"
+      ja: "構造系譜グラフ"
+
+      aliases:
+        - value: "Structural Derivative Graph"
+          language: "en"
+
+        - value: "構造派生系譜"
+          language: "ja"
+
+    summary: >-
+      A graph layer that connects structures through
+      derivation, extension, implementation, translation,
+      convergence, and supersession relationships.
+
+    origin_binding:
+      originator_id: "shidenkai-alpha"
+      precedence_record_id: "SPL-0003"
+
+      precedence_record_uri: >-
+        https://example.org/structural-precedence-ledger/records/SPL-0003.yaml
+
+      first_publication_at: "2026-07-18T06:07:26+09:00"
+
+    classification:
+      structure_type: "audit-model"
+
+      domains:
+        - "lineage"
+        - "derivation"
+        - "convergence"
+        - "graph"
+
+    discovery:
+      keywords:
+        - "lineage"
+        - "derivative"
+        - "graph"
+        - "convergence"
+        - "influence-audit"
+
+      related_structures:
+        - "STR-2026-0001"
+        - "STR-2026-0002"
+
+    lifecycle:
+      status: "active"
+      introduced_at: "2026-07-18T06:07:26+09:00"
+      supersedes: []
+      superseded_by: []
+
+    royalty_route_id: >-
+      shidenkai-alpha:structure-lineage-graph
+
 audit:
   integrity_status: "unverified"
   review_status: "self-recorded"
-  last_validated_at: "2026-07-18T05:57:24+09:00"
+  last_validated_at: "2026-07-18T06:07:26+09:00"
   reviewers: []
 
   note: >-
-    Replace example.org URIs with durable production locations
-    before release.
+    Replace example.org URIs with durable production
+    locations before release.
