@@ -1,0 +1,93 @@
+schema_version: "0.1.0"
+record_id: "SPL-0001"
+
+canonical_name:
+  en: "Structural Precedence Ledger"
+  ja: "構造先行性台帳"
+  aliases:
+    - "Structure Origin Ledger"
+    - "構造の戸籍"
+
+status: "published"
+
+origin:
+  originator_id: "shidenkai-alpha"
+  originator_display_name: "Shidenkai Alpha"
+  first_publication_at: "2026-07-18T05:46:47+09:00"
+  canonical_uri: "https://github.com/example/structural-precedence-ledger"
+  repository_uri: "https://github.com/example/structural-precedence-ledger"
+  canonical_version: "v0.1"
+
+core_proposition:
+  summary: >-
+    A structural idea should be recorded with a stable origin identity,
+    timestamped precedence evidence, explicit boundaries, later convergence
+    records, and a route for attribution or value return.
+
+  scope: >-
+    This record covers conceptual structures, protocols, governance models,
+    and architecture-level propositions published before later implementations.
+
+  falsifiable_claims:
+    - "A dated origin record can distinguish prior publication from later convergence."
+    - "Separating convergence from direct influence reduces false attribution claims."
+
+  keywords:
+    - "origin"
+    - "precedence"
+    - "trace"
+    - "audit"
+    - "convergence"
+    - "royalty"
+
+precedence_evidence:
+  - evidence_id: "EVD-001"
+    type: "git-commit"
+    uri: "https://github.com/example/structural-precedence-ledger/commit/0000000000000000000000000000000000000000"
+    recorded_at: "2026-07-18T05:46:47+09:00"
+    note: "Initial public commit for the v0.1 record format."
+
+convergence_records:
+  - convergence_id: "CNV-001"
+    derivative_name: "Example downstream provenance system"
+    organization: "Example Research Lab"
+    published_at: "2026-08-01T00:00:00Z"
+    source_uri: "https://example.org/downstream-provenance-system"
+
+    relationship_type: "independent_convergence"
+    confidence: "medium"
+
+    convergences:
+      - "Both systems preserve a timestamped origin reference."
+      - "Both systems distinguish source records from later derivatives."
+
+    differences:
+      - "The downstream system does not define royalty routing."
+      - "The downstream system focuses on documents rather than structural ideas."
+
+    influence_audit:
+      evidence_of_access: "none"
+      evidence_of_citation: "none"
+      evidence_of_direct_influence: "none"
+      audit_note: >-
+        Structural similarity is visible, but no evidence shows that the
+        downstream organization accessed or used this repository.
+
+prediction_references: []
+
+royalty_binding:
+  enabled: true
+  origin_id: "shidenkai-alpha:structural-precedence-ledger"
+  policy: "royalty-route-pending"
+  note: >-
+    Attribution is active in v0.1. Automated royalty routing will be defined
+    in a later version.
+
+audit:
+  created_at: "2026-07-18T05:46:47+09:00"
+  updated_at: "2026-07-18T05:46:47+09:00"
+  integrity_status: "unverified"
+  review_status: "self-recorded"
+  reviewers: []
+  note: >-
+    Replace all example.org and example repository URLs before production use.
