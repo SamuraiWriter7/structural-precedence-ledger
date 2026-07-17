@@ -1,0 +1,429 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/structural-precedence-ledger/schemas/structural-precedence-record.schema.json",
+  "title": "Structural Precedence Record",
+  "description": "A machine-readable record for documenting the origin, precedence evidence, structural convergence, influence boundaries, and royalty routing of a structural idea.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_id",
+    "canonical_name",
+    "status",
+    "origin",
+    "core_proposition",
+    "precedence_evidence",
+    "convergence_records",
+    "royalty_binding",
+    "audit"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "record_id": {
+      "type": "string",
+      "pattern": "^SPL-[0-9]{4,}$",
+      "description": "Stable ledger identifier."
+    },
+    "canonical_name": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "en"
+      ],
+      "properties": {
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ja": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "default": []
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published",
+        "superseded",
+        "withdrawn"
+      ]
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "originator_id",
+        "originator_display_name",
+        "first_publication_at",
+        "canonical_uri",
+        "canonical_version"
+      ],
+      "properties": {
+        "originator_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+        },
+        "originator_display_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "first_publication_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "canonical_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "repository_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "canonical_version": {
+          "type": "string",
+          "pattern": "^v?[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "content_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "core_proposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "scope",
+        "falsifiable_claims",
+        "keywords"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 20
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 10
+        },
+        "falsifiable_claims": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 10
+          },
+          "uniqueItems": true
+        },
+        "keywords": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "precedence_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/precedenceEvidence"
+      }
+    },
+    "convergence_records": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/convergenceRecord"
+      },
+      "default": []
+    },
+    "prediction_references": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^PRED-[0-9]{4}-[0-9]{3,}$"
+      },
+      "uniqueItems": true,
+      "default": []
+    },
+    "royalty_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "origin_id",
+        "policy"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "origin_id": {
+          "type": "string",
+          "minLength": 3
+        },
+        "route_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "policy": {
+          "type": "string",
+          "enum": [
+            "attribution-only",
+            "voluntary-contribution",
+            "license-bound",
+            "royalty-route-pending",
+            "custom"
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "created_at",
+        "updated_at",
+        "integrity_status",
+        "review_status"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "integrity_status": {
+          "type": "string",
+          "enum": [
+            "unverified",
+            "verified",
+            "disputed"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "self-recorded",
+            "peer-reviewed",
+            "third-party-audited"
+          ]
+        },
+        "reviewers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "default": []
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Fa-f0-9]{64,128}$"
+        }
+      }
+    },
+    "precedenceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "type",
+        "uri",
+        "recorded_at"
+      ],
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "pattern": "^EVD-[0-9]{3,}$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "git-commit",
+            "release",
+            "publication",
+            "archive-snapshot",
+            "book",
+            "signed-record",
+            "other"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "convergenceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "convergence_id",
+        "derivative_name",
+        "published_at",
+        "source_uri",
+        "relationship_type",
+        "confidence",
+        "convergences",
+        "differences",
+        "influence_audit"
+      ],
+      "properties": {
+        "convergence_id": {
+          "type": "string",
+          "pattern": "^CNV-[0-9]{3,}$"
+        },
+        "derivative_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "organization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "published_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "relationship_type": {
+          "type": "string",
+          "enum": [
+            "direct_influence",
+            "probable_influence",
+            "independent_convergence",
+            "partial_convergence",
+            "conceptual_analogy",
+            "unrelated"
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "convergences": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 5
+          },
+          "uniqueItems": true
+        },
+        "differences": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 5
+          },
+          "uniqueItems": true
+        },
+        "influence_audit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "evidence_of_access",
+            "evidence_of_citation",
+            "evidence_of_direct_influence",
+            "audit_note"
+          ],
+          "properties": {
+            "evidence_of_access": {
+              "type": "string",
+              "enum": [
+                "none",
+                "unverified",
+                "indirect",
+                "documented"
+              ]
+            },
+            "evidence_of_citation": {
+              "type": "string",
+              "enum": [
+                "none",
+                "unverified",
+                "indirect",
+                "documented"
+              ]
+            },
+            "evidence_of_direct_influence": {
+              "type": "string",
+              "enum": [
+                "none",
+                "unverified",
+                "indirect",
+                "documented"
+              ]
+            },
+            "audit_note": {
+              "type": "string",
+              "minLength": 10
+            }
+          }
+        }
+      }
+    }
+  }
+}
