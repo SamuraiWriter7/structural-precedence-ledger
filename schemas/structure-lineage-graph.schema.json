@@ -1,0 +1,447 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/structural-precedence-ledger/schemas/structure-lineage-graph.schema.json",
+  "title": "Structure Lineage Graph",
+  "description": "A graph of canonical and externally observed structures connected by derivative, implementation, convergence, translation, and supersession relationships.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "graph_id",
+    "title",
+    "status",
+    "maintained_by",
+    "generated_at",
+    "nodes",
+    "edges",
+    "audit"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.3.0"
+    },
+    "graph_id": {
+      "type": "string",
+      "pattern": "^GRF-[0-9]{4}-[0-9]{4}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 20
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "frozen",
+        "retired"
+      ]
+    },
+    "maintained_by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maintainer_id",
+        "display_name"
+      ],
+      "properties": {
+        "maintainer_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contact_uri": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "registry_uri": {
+      "type": "string",
+      "format": "uri"
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/edge"
+      },
+      "default": []
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "integrity_status",
+        "review_status",
+        "last_validated_at"
+      ],
+      "properties": {
+        "integrity_status": {
+          "type": "string",
+          "enum": [
+            "unverified",
+            "verified",
+            "disputed"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "self-recorded",
+            "peer-reviewed",
+            "third-party-audited"
+          ]
+        },
+        "last_validated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reviewers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "default": []
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Fa-f0-9]{64,128}$"
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id",
+        "node_kind",
+        "name",
+        "first_publication_at",
+        "source_uri"
+      ],
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "pattern": "^NOD-[0-9]{4}$"
+        },
+        "node_kind": {
+          "type": "string",
+          "enum": [
+            "canonical_structure",
+            "external_structure"
+          ]
+        },
+        "canonical_structure_id": {
+          "type": "string",
+          "pattern": "^STR-[0-9]{4}-[0-9]{4}$"
+        },
+        "external_structure_id": {
+          "type": "string",
+          "pattern": "^EXT-[0-9]{4}-[0-9]{4}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "organization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "first_publication_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "content_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "default": []
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "node_kind": {
+                "const": "canonical_structure"
+              }
+            },
+            "required": [
+              "node_kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "canonical_structure_id"
+            ],
+            "not": {
+              "required": [
+                "external_structure_id"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "node_kind": {
+                "const": "external_structure"
+              }
+            },
+            "required": [
+              "node_kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "external_structure_id"
+            ],
+            "not": {
+              "required": [
+                "canonical_structure_id"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "type",
+        "uri",
+        "observed_at"
+      ],
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "pattern": "^GEV-[0-9]{3,}$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "git-commit",
+            "release",
+            "publication",
+            "archive-snapshot",
+            "book",
+            "citation",
+            "access-record",
+            "comparison-note",
+            "other"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "influenceAudit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_of_access",
+        "evidence_of_citation",
+        "evidence_of_direct_influence",
+        "audit_note"
+      ],
+      "properties": {
+        "evidence_of_access": {
+          "type": "string",
+          "enum": [
+            "none",
+            "unverified",
+            "indirect",
+            "documented"
+          ]
+        },
+        "evidence_of_citation": {
+          "type": "string",
+          "enum": [
+            "none",
+            "unverified",
+            "indirect",
+            "documented"
+          ]
+        },
+        "evidence_of_direct_influence": {
+          "type": "string",
+          "enum": [
+            "none",
+            "unverified",
+            "indirect",
+            "documented"
+          ]
+        },
+        "audit_note": {
+          "type": "string",
+          "minLength": 10
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edge_id",
+        "source_node_id",
+        "target_node_id",
+        "relationship_type",
+        "confidence",
+        "asserted_at",
+        "asserted_by",
+        "convergences",
+        "differences",
+        "evidence",
+        "influence_audit"
+      ],
+      "properties": {
+        "edge_id": {
+          "type": "string",
+          "pattern": "^EDG-[0-9]{4}$"
+        },
+        "source_node_id": {
+          "type": "string",
+          "pattern": "^NOD-[0-9]{4}$"
+        },
+        "target_node_id": {
+          "type": "string",
+          "pattern": "^NOD-[0-9]{4}$"
+        },
+        "relationship_type": {
+          "type": "string",
+          "enum": [
+            "derived_from",
+            "extends",
+            "specializes",
+            "generalizes",
+            "implements",
+            "integrates",
+            "translates",
+            "supersedes",
+            "direct_influence",
+            "probable_influence",
+            "independent_convergence",
+            "partial_convergence",
+            "conceptual_analogy",
+            "related_to"
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "asserted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "asserted_by": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+        },
+        "convergences": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 5
+          },
+          "uniqueItems": true
+        },
+        "differences": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 5
+          },
+          "uniqueItems": true
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          },
+          "default": []
+        },
+        "influence_audit": {
+          "$ref": "#/$defs/influenceAudit"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
