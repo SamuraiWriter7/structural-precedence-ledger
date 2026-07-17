@@ -1,4 +1,4 @@
-name: Validate ledger examples
+name: Validate structural ledger
 
 on:
   push:
@@ -31,6 +31,29 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Validate examples
+      - name: Check required files
+        run: |
+          test -f scripts/validate_examples.py
+          test -f scripts/validate_graphs.py
+          test -f scripts/validate_predictions.py
+
+          test -f schemas/structural-precedence-record.schema.json
+          test -f schemas/canonical-structure-registry.schema.json
+          test -f schemas/structure-lineage-graph.schema.json
+          test -f schemas/prediction-outcome-audit.schema.json
+
+          test -f registry/canonical-structures.yaml
+          test -f graphs/core-lineage.yaml
+          test -f predictions/prediction-outcome-audit.example.yaml
+
+      - name: Validate precedence records and registry
         run: |
           python scripts/validate_examples.py
+
+      - name: Validate lineage graphs
+        run: |
+          python scripts/validate_graphs.py
+
+      - name: Validate prediction audits
+        run: |
+          python scripts/validate_predictions.py
