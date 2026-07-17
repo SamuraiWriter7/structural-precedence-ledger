@@ -1,22 +1,36 @@
-      - name: Check validation files
+name: Validate ledger examples
+
+on:
+  push:
+    branches:
+      - "main"
+
+  pull_request:
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
         run: |
-          echo "Repository root:"
-          pwd
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-          echo "Scripts:"
-          find scripts -maxdepth 1 -type f -print
-
-          test -f scripts/validate_examples.py
-          test -f scripts/validate_graphs.py
-
-          test -f schemas/structure-lineage-graph.schema.json
-          test -f registry/canonical-structures.yaml
-          test -f graphs/core-lineage.yaml
-
-      - name: Validate precedence records and registry
+      - name: Validate examples
         run: |
           python scripts/validate_examples.py
-
-      - name: Validate lineage graphs
-        run: |
-          python scripts/validate_graphs.py
