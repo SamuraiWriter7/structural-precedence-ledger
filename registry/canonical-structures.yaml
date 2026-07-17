@@ -6,7 +6,8 @@ title: "Structural Precedence Ledger Canonical Structure Registry"
 
 description: >-
   The canonical registry for stable structure identifiers,
-  origin bindings, aliases, lifecycle states, and discovery metadata.
+  origin bindings, aliases, lifecycle states, discovery metadata,
+  and future royalty routes.
 
 status: "active"
 
@@ -15,7 +16,7 @@ maintained_by:
   display_name: "Shidenkai Alpha"
   contact_uri: "https://example.org/shidenkai-alpha"
 
-generated_at: "2026-07-18T06:07:26+09:00"
+generated_at: "2026-07-18T06:48:13+09:00"
 
 registry_uri: >-
   https://example.org/structural-precedence-ledger/registry/canonical-structures.yaml
@@ -37,9 +38,9 @@ entries:
           language: "ja"
 
     summary: >-
-      A ledger for fixing the origin, precedence,
-      convergence, and attribution boundary
-      of structural ideas.
+      A ledger for recording the origin, precedence,
+      convergence, influence boundaries, and attribution
+      routes of structural ideas.
 
     origin_binding:
       originator_id: "shidenkai-alpha"
@@ -57,24 +58,32 @@ entries:
         - "provenance"
         - "structural-design"
         - "audit"
+        - "attribution"
 
     discovery:
       keywords:
         - "origin"
         - "precedence"
+        - "trace"
         - "registry"
         - "convergence"
-        - "audit"
+        - "influence-audit"
+        - "royalty"
 
       related_structures:
         - "STR-2026-0002"
         - "STR-2026-0003"
+        - "STR-2026-0004"
 
     lifecycle:
       status: "active"
       introduced_at: "2026-07-18T05:46:47+09:00"
       supersedes: []
       superseded_by: []
+
+      note: >-
+        Initial origin and precedence layer of the
+        Structural Precedence Ledger specification.
 
     royalty_route_id: >-
       shidenkai-alpha:structural-precedence-ledger
@@ -96,8 +105,8 @@ entries:
 
     summary: >-
       A registry layer that assigns one stable identity
-      to each structural idea and binds it to
-      a precedence record.
+      to each structural idea and binds that identity
+      to an inspectable precedence record.
 
     origin_binding:
       originator_id: "shidenkai-alpha"
@@ -115,24 +124,31 @@ entries:
         - "identity"
         - "provenance"
         - "discovery"
+        - "lifecycle"
 
     discovery:
       keywords:
         - "canonical-id"
         - "registry"
         - "alias"
+        - "identity"
         - "lifecycle"
         - "origin-binding"
 
       related_structures:
         - "STR-2026-0001"
         - "STR-2026-0003"
+        - "STR-2026-0004"
 
     lifecycle:
       status: "active"
       introduced_at: "2026-07-18T05:57:24+09:00"
       supersedes: []
       superseded_by: []
+
+      note: >-
+        Adds stable canonical identities and discovery
+        metadata to v0.1 precedence records.
 
     royalty_route_id: >-
       shidenkai-alpha:canonical-structure-registry
@@ -153,9 +169,9 @@ entries:
           language: "ja"
 
     summary: >-
-      A graph layer that connects structures through
-      derivation, extension, implementation, translation,
-      convergence, and supersession relationships.
+      A graph layer that connects canonical and external
+      structures through derivation, extension, implementation,
+      translation, convergence, influence, and supersession.
 
     origin_binding:
       originator_id: "shidenkai-alpha"
@@ -173,6 +189,7 @@ entries:
         - "lineage"
         - "derivation"
         - "convergence"
+        - "influence"
         - "graph"
 
     discovery:
@@ -180,12 +197,15 @@ entries:
         - "lineage"
         - "derivative"
         - "graph"
+        - "extension"
+        - "implementation"
         - "convergence"
         - "influence-audit"
 
       related_structures:
         - "STR-2026-0001"
         - "STR-2026-0002"
+        - "STR-2026-0004"
 
     lifecycle:
       status: "active"
@@ -193,15 +213,87 @@ entries:
       supersedes: []
       superseded_by: []
 
+      note: >-
+        Adds auditable cross-structure relationships
+        to the canonical registry.
+
     royalty_route_id: >-
       shidenkai-alpha:structure-lineage-graph
+
+  - canonical_structure_id: "STR-2026-0004"
+
+    slug: "prediction-outcome-audit"
+
+    canonical_name:
+      en: "Prediction and Outcome Audit"
+      ja: "構造予測・結果監査"
+
+      aliases:
+        - value: "Structural Prediction Audit"
+          language: "en"
+
+        - value: "構造予測監査"
+          language: "ja"
+
+    summary: >-
+      An audit structure that freezes predictions before
+      outcomes occur and later compares observable evidence
+      against explicit success and failure criteria.
+
+    origin_binding:
+      originator_id: "shidenkai-alpha"
+      precedence_record_id: "SPL-0004"
+
+      precedence_record_uri: >-
+        https://example.org/structural-precedence-ledger/records/SPL-0004.yaml
+
+      first_publication_at: "2026-07-18T06:36:50+09:00"
+
+    classification:
+      structure_type: "audit-model"
+
+      domains:
+        - "prediction"
+        - "outcome"
+        - "precedence"
+        - "forecast"
+        - "audit"
+
+    discovery:
+      keywords:
+        - "prediction"
+        - "outcome"
+        - "forecast"
+        - "observable-indicator"
+        - "success-criteria"
+        - "failure-criteria"
+        - "confidence"
+        - "audit"
+
+      related_structures:
+        - "STR-2026-0001"
+        - "STR-2026-0002"
+        - "STR-2026-0003"
+
+    lifecycle:
+      status: "active"
+      introduced_at: "2026-07-18T06:36:50+09:00"
+      supersedes: []
+      superseded_by: []
+
+      note: >-
+        Adds timestamped forward prediction and
+        outcome evaluation to the structural lineage.
+
+    royalty_route_id: >-
+      shidenkai-alpha:prediction-outcome-audit
 
 audit:
   integrity_status: "unverified"
   review_status: "self-recorded"
-  last_validated_at: "2026-07-18T06:07:26+09:00"
+  last_validated_at: "2026-07-18T06:48:13+09:00"
   reviewers: []
 
   note: >-
-    Replace example.org URIs with durable production
-    locations before release.
+    Replace all example.org addresses with durable repository,
+    release, archive, or publication URIs before production use.
