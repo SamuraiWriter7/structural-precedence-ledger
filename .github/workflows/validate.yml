@@ -36,15 +36,18 @@ jobs:
           test -f scripts/validate_examples.py
           test -f scripts/validate_graphs.py
           test -f scripts/validate_predictions.py
+          test -f scripts/validate_royalties.py
 
           test -f schemas/structural-precedence-record.schema.json
           test -f schemas/canonical-structure-registry.schema.json
           test -f schemas/structure-lineage-graph.schema.json
           test -f schemas/prediction-outcome-audit.schema.json
+          test -f schemas/royalty-contribution-binding.schema.json
 
           test -f registry/canonical-structures.yaml
           test -f graphs/core-lineage.yaml
           test -f predictions/prediction-outcome-audit.example.yaml
+          test -f royalties/royalty-contribution-binding.example.yaml
 
       - name: Validate precedence records and registry
         run: |
@@ -57,3 +60,7 @@ jobs:
       - name: Validate prediction audits
         run: |
           python scripts/validate_predictions.py
+
+      - name: Validate royalty bindings
+        run: |
+          python scripts/validate_royalties.py
