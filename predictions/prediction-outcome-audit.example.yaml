@@ -1,0 +1,169 @@
+schema_version: "0.4.0"
+
+audit_id: "PAU-2026-0001"
+
+canonical_structure_id: "STR-2026-0001"
+
+prediction:
+  prediction_id: "PRED-2026-001"
+
+  issued_at: "2026-07-18T05:46:47+09:00"
+
+  issued_by: "shidenkai-alpha"
+
+  status: "closed"
+
+  claim: >-
+    The Structural Precedence Ledger will add a canonical registry
+    and a lineage graph before introducing automated royalty binding.
+
+  rationale: >-
+    A single precedence record cannot manage stable identities or
+    cross-structure relationships, so registry and graph layers are
+    necessary intermediate steps.
+
+  scope: >-
+    Specification development within this repository.
+
+  expected_window:
+    from: "2026-07-18T05:46:47+09:00"
+    to: "2026-12-31T23:59:59+09:00"
+
+  observable_indicators:
+    - >-
+      A canonical registry assigns stable identifiers
+      to multiple structures.
+
+    - >-
+      A lineage graph connects registered structures
+      through auditable edges.
+
+    - >-
+      Automated royalty settlement remains outside
+      the completed scope.
+
+  success_criteria:
+    - criterion_id: "SUC-001"
+      description: >-
+        A canonical structure registry is publicly added.
+
+    - criterion_id: "SUC-002"
+      description: >-
+        A machine-readable structure lineage graph is publicly added.
+
+    - criterion_id: "SUC-003"
+      description: >-
+        Royalty binding remains scheduled for a later
+        specification version.
+
+  failure_criteria:
+    - criterion_id: "FLR-001"
+      description: >-
+        The project reaches royalty settlement without first
+        adding registry and lineage layers.
+
+    - criterion_id: "FLR-002"
+      description: >-
+        No canonical registry or lineage graph appears
+        within the expected window.
+
+  exclusions:
+    - >-
+      Cosmetic README changes without machine-readable
+      schemas do not count.
+
+  confidence:
+    level: "high"
+    probability: 0.90
+
+    note: >-
+      The v0.1 roadmap explicitly ordered registry and
+      graph layers before royalty binding.
+
+  precedence_evidence:
+    - evidence_id: "PEV-001"
+      type: "git-commit"
+
+      uri: >-
+        https://example.org/structural-precedence-ledger/commit/v0.1-roadmap
+
+      recorded_at: "2026-07-18T05:46:47+09:00"
+
+      note: >-
+        Initial roadmap containing the ordered v0.2
+        through v0.5 plan.
+
+outcomes:
+  - outcome_id: "OUT-001"
+
+    observed_at: "2026-07-18T05:57:24+09:00"
+
+    source_uri: >-
+      https://example.org/structural-precedence-ledger/releases/v0.2.0
+
+    summary: >-
+      v0.2 introduced the Canonical Structure Registry
+      and stable structure identifiers.
+
+    relevance: "supporting"
+    evidence_strength: "strong"
+
+    matched_indicator_indexes:
+      - 0
+
+  - outcome_id: "OUT-002"
+
+    observed_at: "2026-07-18T06:07:26+09:00"
+
+    source_uri: >-
+      https://example.org/structural-precedence-ledger/releases/v0.3.0
+
+    summary: >-
+      v0.3 introduced the Structure Lineage Graph
+      and auditable relationship edges.
+
+    relevance: "supporting"
+    evidence_strength: "strong"
+
+    matched_indicator_indexes:
+      - 1
+      - 2
+
+evaluation:
+  evaluated_at: "2026-07-18T06:36:50+09:00"
+
+  evaluator_id: "shidenkai-alpha"
+
+  result: "confirmed"
+
+  alignment_score: 1.0
+
+  matched_success_criteria:
+    - "SUC-001"
+    - "SUC-002"
+    - "SUC-003"
+
+  matched_failure_criteria: []
+
+  reasoning: >-
+    The registry and lineage layers were added in the predicted
+    order, while automated royalty settlement remained reserved
+    for v0.5.
+
+  limitations:
+    - >-
+      This first audit evaluates an internal project roadmap
+      rather than an external market prediction.
+
+audit:
+  created_at: "2026-07-18T06:36:50+09:00"
+  updated_at: "2026-07-18T06:36:50+09:00"
+
+  integrity_status: "unverified"
+  review_status: "self-recorded"
+
+  reviewers: []
+
+  note: >-
+    Replace example.org URIs with durable repository
+    URLs before release.
